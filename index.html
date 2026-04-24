@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SINSONTE – Aperitivo de Ajíes Peruanos</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════════ */
+:root {
+  --amber:     #F5A623;
+  --amber-dk:  #C4830B;
+  --rust:      #8B2500;
+  --black:     #080808;
+  --dark:      #111010;
+  --mid:       #1c1a17;
+  --muted:     rgba(255,255,255,0.45);
+  --green:     #25D366;
+  --nav-h:     72px;
+  --pad-x:     clamp(20px, 5vw, 80px);
+}
+
+/* ════════════════════════════════════════════
+   RESET
+════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body {
+  font-family:'Montserrat',sans-serif;
+  background:var(--black); color:#fff;
+  overflow-x:hidden;
+  /* Safe area for notch phones */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+a { text-decoration:none; color:inherit; }
+img { display:block; max-width:100%; }
+button { cursor:pointer; border:none; background:none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:var(--dark); }
+::-webkit-scrollbar-thumb { background:var(--amber); border-radius:2px; }
+
+/* Grain overlay */
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.025;
+}
+
+/* ════════════════════════════════════════════
+   HEADER / NAV
+════════════════════════════════════════════ */
+header {
+  position:fixed; top:0; left:0; right:0; z-index:600;
+  height:var(--nav-h);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--pad-x);
+  transition:background .4s, box-shadow .4s;
+}
+header.scrolled {
+  background:rgba(8,8,8,.96);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  box-shadow:0 1px 0 rgba(245,166,35,.12);
+}
+
+/* Desktop nav links */
+.nav-links {
+  display:flex; gap:36px; list-style:none;
+}
+.nav-links a {
+  font-size:11px; font-weight:600; letter-spacing:2.5px;
+  text-transform:uppercase; color:rgba(255,255,255,.85);
+  transition:color .3s; position:relative;
+}
+.nav-links a::after {
+  content:''; position:absolute; bottom:-4px; left:0; right:100%;
+  height:1px; background:var(--amber); transition:right .35s ease;
+}
+.nav-links a:hover { color:#fff; }
+.nav-links a:hover::after { right:0; }
+
+/* Logo */
+.nav-logo {
+  position:absolute; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  text-align:center;
+}
+.nav-logo .wm {
+  font-family:'Oswald',sans-serif; font-size:26px; font-weight:700;
+  letter-spacing:8px; color:#fff; line-height:1;
+}
+.nav-logo .tg {
+  font-size:7px; letter-spacing:5px; color:var(--amber);
+  text-transform:uppercase;
+}
+
+/* Buy button */
+.btn-buy {
+  background:var(--amber); color:var(--black);
+  padding:10px 22px; border-radius:40px;
+  font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  transition:background .3s, transform .2s, box-shadow .3s;
+  white-space:nowrap;
+}
+.btn-buy:hover {
+  background:var(--amber-dk);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(245,166,35,.35);
+}
+
+/* ── HAMBURGER ── */
+.hamburger {
+  display:none;
+  flex-direction:column; justify-content:center; align-items:center;
+  width:40px; height:40px; gap:6px;
+  position:relative; z-index:700;
+}
+.hamburger span {
+  display:block; width:24px; height:2px;
+  background:#fff; border-radius:2px;
+  transition:transform .35s ease, opacity .25s ease, width .3s ease;
+  transform-origin:center;
+}
+.hamburger.open span:nth-child(1) { transform:translateY(8px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+.hamburger.open span:nth-child(3) { transform:translateY(-8px) rotate(-45deg); }
+
+/* ── MOBILE DRAWER ── */
+.nav-drawer {
+  display:none;
+  position:fixed; inset:0; z-index:550;
+  background:rgba(8,8,8,.98);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:8px;
+  opacity:0; pointer-events:none;
+  transition:opacity .35s ease;
+}
+.nav-drawer.open {
+  opacity:1; pointer-events:all;
+}
+.nav-drawer ul {
+  list-style:none;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  margin-bottom:40px;
+}
+.nav-drawer ul li a {
+  font-family:'Oswald',sans-serif;
+  font-size:clamp(32px,8vw,48px); font-weight:600;
+  text-transform:uppercase; letter-spacing:4px; color:#fff;
+  display:block; padding:10px 20px;
+  transition:color .3s;
+}
+.nav-drawer ul li a:hover { color:var(--amber); }
+.nav-drawer .drawer-buy {
+  background:var(--amber); color:var(--black);
+  padding:14px 36px; border-radius:40px;
+  font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+}
+.nav-drawer .drawer-soc {
+  display:flex; gap:16px; margin-top:36px;
+}
+.nav-drawer .drawer-soc a {
+  width:42px; height:42px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .3s;
+}
+.nav-drawer .drawer-soc a:hover { border-color:var(--amber); }
+.nav-drawer .drawer-soc svg { width:16px; height:16px; fill:#fff; }
+
+/* ════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════ */
+#hero {
+  position:relative;
+  height:100dvh; min-height:600px;
+  display:flex; align-items:center;
+  overflow:hidden;
+}
+
+.hero-bg {
+  position:absolute; inset:0;
+  background:
+    linear-gradient(108deg,
+      rgba(8,8,8,.92) 0%,
+      rgba(8,8,8,.60) 50%,
+      rgba(8,8,8,.20) 100%),
+    url('https://images.unsplash.com/photo-1612528443702-f6741f70a049?w=1800&q=85')
+    center/cover no-repeat;
+}
+.hero-bg::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 70% at 72% 50%, rgba(139,37,0,.22) 0%, transparent 70%);
+}
+.hero-bg::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:220px;
+  background:linear-gradient(to top, var(--dark), transparent);
+}
+
+.hero-in {
+  position:relative; z-index:2;
+  padding:0 var(--pad-x);
+  padding-top:var(--nav-h);
+  max-width:600px; width:100%;
+}
+
+.hero-eye {
+  display:inline-flex; align-items:center; gap:12px;
+  margin-bottom:20px;
+  opacity:0; animation:fadeUp .8s .2s ease forwards;
+}
+.hero-eye::before { content:''; width:28px; height:1px; background:var(--amber); }
+.hero-eye span {
+  font-size:9px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--amber); font-weight:600;
+}
+
+.hero-h1 {
+  font-family:'Oswald',sans-serif;
+  font-size:clamp(40px, 7vw, 72px);
+  font-weight:700; text-transform:uppercase;
+  line-height:1.06; letter-spacing:2px; color:#fff;
+  margin-bottom:20px;
+  opacity:0; animation:fadeUp .8s .4s ease forwards;
+}
+.hero-h1 em { color:var(--amber); font-style:normal; }
+
+.hero-p {
+  font-size:clamp(13px,2.2vw,15px); font-weight:300; line-height:1.85;
+  color:rgba(255,255,255,.72); max-width:380px; margin-bottom:40px;
+  opacity:0; animation:fadeUp .8s .6s ease forwards;
+}
+
+.hero-cta {
+  display:inline-flex; align-items:center; gap:18px;
+  opacity:0; animation:fadeUp .8s .8s ease forwards;
+}
+.cta-icon {
+  width:52px; height:52px; border-radius:50%;
+  border:1.5px solid var(--amber);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:background .3s, transform .35s;
+}
+.cta-icon svg { width:20px; height:20px; fill:var(--amber); transition:fill .3s; }
+.hero-cta:hover .cta-icon { background:var(--amber); transform:rotate(20deg); }
+.hero-cta:hover .cta-icon svg { fill:var(--black); }
+.cta-line { width:44px; height:1px; background:var(--amber); }
+.cta-lbl {
+  font-size:10px; font-weight:700; letter-spacing:3.5px;
+  text-transform:uppercase; color:var(--amber);
+  transition:letter-spacing .3s;
+}
+.hero-cta:hover .cta-lbl { letter-spacing:5px; }
+
+/* Scroll hint */
+.scroll-hint {
+  position:absolute; bottom:28px; left:var(--pad-x); z-index:2;
+  display:flex; align-items:center; gap:10px;
+  opacity:0; animation:fadeIn 1s 1.5s ease forwards;
+}
+.scroll-hint span { font-size:8px; letter-spacing:4px; text-transform:uppercase; color:var(--muted); }
+.scroll-bar { width:1px; height:40px; background:var(--muted); position:relative; overflow:hidden; }
+.scroll-bar::after {
+  content:''; position:absolute; top:-100%; left:0; right:0; height:50%;
+  background:var(--amber); animation:scrollDown 1.8s 1.5s ease-in-out infinite;
+}
+@keyframes scrollDown { 0%{top:-100%} 100%{top:200%} }
+
+/* Social rail – desktop only */
+.social-rail {
+  position:fixed; right:24px; top:50%; transform:translateY(-50%);
+  z-index:300; display:flex; flex-direction:column; gap:12px;
+}
+.sp {
+  width:36px; height:36px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .3s, background .3s, transform .3s;
+}
+.sp svg { width:14px; height:14px; fill:#fff; }
+.sp:hover { border-color:var(--amber); background:rgba(245,166,35,.15); transform:scale(1.2); }
+
+/* ════════════════════════════════════════════
+   SECTION COMMONS
+════════════════════════════════════════════ */
+section { position:relative; overflow:hidden; }
+
+.s-label {
+  font-size:8px; letter-spacing:6px; text-transform:uppercase;
+  color:var(--amber); font-weight:600;
+  display:flex; align-items:center; gap:12px; margin-bottom:18px;
+}
+.s-label::before { content:''; width:24px; height:1px; background:var(--amber); }
+
+.s-h2 {
+  font-family:'Oswald',sans-serif;
+  font-size:clamp(28px,4vw,52px);
+  font-weight:600; text-transform:uppercase;
+  letter-spacing:2px; line-height:1.1;
+}
+
+/* ════════════════════════════════════════════
+   NOSOTROS
+════════════════════════════════════════════ */
+#nosotros { background:var(--dark); padding:clamp(70px,10vw,120px) var(--pad-x); }
+
+.about-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:clamp(40px,6vw,80px); align-items:center;
+  max-width:1200px; margin:0 auto;
+}
+
+.about-img-wrap { position:relative; }
+.about-img-wrap::before {
+  content:''; position:absolute; inset:-16px 16px 16px -16px;
+  border:1px solid rgba(245,166,35,.22); border-radius:2px; z-index:0;
+}
+.about-img {
+  width:100%; aspect-ratio:4/5; border-radius:2px;
+  position:relative; z-index:1;
+  background:
+    linear-gradient(145deg, rgba(139,37,0,.35) 0%, rgba(8,8,8,.85) 60%),
+    url('https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=800&q=80')
+    center/cover;
+}
+.about-badge {
+  position:absolute; bottom:-24px; right:-24px; z-index:2;
+  width:96px; height:96px; border-radius:50%;
+  background:var(--amber);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+}
+.about-badge .num {
+  font-family:'Oswald',sans-serif; font-size:30px; font-weight:700;
+  color:var(--black); line-height:1;
+}
+.about-badge .txt {
+  font-size:7px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--black); font-weight:700; text-align:center;
+}
+
+.about-text .s-h2 { margin-bottom:24px; }
+.about-text p {
+  font-size:clamp(13px,1.5vw,14px); font-weight:300; line-height:1.9;
+  color:rgba(255,255,255,.7); margin-bottom:16px;
+}
+
+.aji-tags { display:flex; flex-wrap:wrap; gap:8px; margin:26px 0; }
+.aj {
+  font-size:9px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600;
+  color:var(--amber); border:1px solid rgba(245,166,35,.35);
+  padding:7px 13px; border-radius:30px;
+  transition:background .3s, color .3s;
+}
+.aj:hover { background:var(--amber); color:var(--black); }
+
+/* ════════════════════════════════════════════
+   PRODUCTO
+════════════════════════════════════════════ */
+#producto { background:var(--mid); padding:clamp(70px,10vw,120px) var(--pad-x); }
+
+.prod-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:clamp(40px,6vw,80px); align-items:center;
+  max-width:1200px; margin:0 auto;
+}
+
+.prod-text .s-h2 { margin-bottom:24px; }
+.prod-text p {
+  font-size:clamp(13px,1.5vw,14px); font-weight:300; line-height:1.9;
+  color:rgba(255,255,255,.7); margin-bottom:16px;
+}
+
+.ing-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; margin:24px 0 32px;
+}
+.ing {
+  display:flex; align-items:center; gap:10px;
+  font-size:12px; font-weight:500; color:rgba(255,255,255,.75);
+}
+.ing::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--amber); flex-shrink:0;
+}
+
+.bottle-wrap { display:flex; flex-direction:column; }
+.bottle-scene {
+  width:100%; aspect-ratio:3/4; border-radius:4px; position:relative;
+  background:
+    radial-gradient(ellipse 80% 80% at 50% 60%, rgba(139,37,0,.28) 0%, transparent 70%),
+    url('https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=800&q=80')
+    center/cover;
+}
+.bottle-tag {
+  position:absolute; top:20px; right:20px;
+  background:rgba(8,8,8,.75); border:1px solid rgba(245,166,35,.3);
+  backdrop-filter:blur(8px); padding:10px 14px; border-radius:4px; text-align:center;
+}
+.bottle-tag .vol { font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; color:var(--amber); }
+.bottle-tag .unit { font-size:8px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+
+.prod-stats {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:1px; background:rgba(255,255,255,.06);
+}
+.stat { background:var(--mid); padding:20px 12px; text-align:center; }
+.stat .val {
+  font-family:'Oswald',sans-serif; font-size:24px; font-weight:600;
+  color:var(--amber); display:block; line-height:1; margin-bottom:5px;
+}
+.stat .lbl { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+/* Shared CTA button */
+.btn-ol {
+  display:inline-flex; align-items:center; gap:10px;
+  border:1px solid var(--amber); color:var(--amber);
+  padding:13px 26px; border-radius:40px;
+  font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  transition:background .3s, color .3s, transform .2s;
+}
+.btn-ol:hover { background:var(--amber); color:var(--black); transform:translateY(-2px); }
+.btn-ol svg { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; }
+
+/* ════════════════════════════════════════════
+   COCTELES
+════════════════════════════════════════════ */
+#cocteles { background:var(--dark); padding:clamp(70px,10vw,120px) var(--pad-x); }
+
+.coc-head {
+  max-width:1200px; margin:0 auto clamp(40px,6vw,60px);
+  display:flex; justify-content:space-between; align-items:flex-end;
+  gap:20px; flex-wrap:wrap;
+}
+.coc-head .left { max-width:480px; }
+.coc-head p { margin-top:14px; font-size:13px; font-weight:300; line-height:1.8; color:rgba(255,255,255,.6); }
+
+.coc-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:18px; max-width:1200px; margin:0 auto;
+}
+.coc-card { position:relative; overflow:hidden; border-radius:4px; aspect-ratio:3/4; cursor:pointer; }
+.coc-bg {
+  position:absolute; inset:0; background-size:cover; background-position:center;
+  transition:transform .6s ease, filter .6s ease;
+  filter:saturate(.75) brightness(.62);
+}
+.coc-card:hover .coc-bg { transform:scale(1.06); filter:saturate(1) brightness(.8); }
+.coc-ov {
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(8,8,8,.9) 0%, rgba(8,8,8,.18) 55%, transparent 100%);
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:clamp(18px,3vw,30px);
+}
+.coc-line { width:28px; height:2px; background:var(--amber); margin-bottom:12px; transition:width .3s; }
+.coc-card:hover .coc-line { width:48px; }
+.coc-name {
+  font-family:'Oswald',sans-serif; font-size:clamp(16px,2vw,20px);
+  font-weight:600; text-transform:uppercase; letter-spacing:1px;
+  color:#fff; margin-bottom:6px;
+}
+.coc-desc { font-size:11px; font-weight:300; color:rgba(255,255,255,.6); line-height:1.6; }
+
+/* ════════════════════════════════════════════
+   CTA STRIP
+════════════════════════════════════════════ */
+#compra {
+  padding:clamp(70px,10vw,100px) var(--pad-x); text-align:center;
+  background:
+    linear-gradient(135deg, rgba(139,37,0,.22) 0%, rgba(8,8,8,.96) 100%),
+    url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1600&q=80')
+    center/cover;
+}
+#compra .in { max-width:640px; margin:0 auto; }
+#compra .s-label { justify-content:center; }
+#compra .s-label::before { display:none; }
+#compra .s-h2 { margin:16px 0 18px; }
+#compra p { font-size:14px; font-weight:300; line-height:1.85; color:rgba(255,255,255,.68); margin-bottom:40px; }
+
+.btn-hero {
+  display:inline-flex; align-items:center; gap:12px;
+  background:var(--amber); color:var(--black);
+  padding:15px 36px; border-radius:40px;
+  font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  transition:background .3s, transform .2s, box-shadow .3s;
+  box-shadow:0 0 36px rgba(245,166,35,.25);
+}
+.btn-hero:hover { background:var(--amber-dk); transform:translateY(-3px); box-shadow:0 12px 40px rgba(245,166,35,.45); }
+.btn-hero svg { width:17px; height:17px; stroke:var(--black); fill:none; stroke-width:2; stroke-linecap:round; }
+
+/* ════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════ */
+footer {
+  background:var(--black);
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:clamp(40px,6vw,60px) var(--pad-x) clamp(24px,4vw,40px);
+}
+.ft-inner {
+  max-width:1200px; margin:0 auto;
+  display:grid; grid-template-columns:1.2fr 1fr 1fr;
+  gap:clamp(30px,5vw,60px); margin-bottom:clamp(36px,5vw,56px);
+}
+.ft-brand .wm { font-family:'Oswald',sans-serif; font-size:22px; font-weight:700; letter-spacing:6px; color:#fff; display:block; margin-bottom:4px; }
+.ft-brand .tg { font-size:7px; letter-spacing:4px; text-transform:uppercase; color:var(--amber); }
+.ft-brand p { margin-top:16px; font-size:12px; font-weight:300; line-height:1.8; color:var(--muted); max-width:240px; }
+.ft-soc { display:flex; gap:10px; margin-top:22px; }
+.ft-s {
+  width:34px; height:34px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.14);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .3s, background .3s;
+}
+.ft-s svg { width:13px; height:13px; fill:#fff; }
+.ft-s:hover { border-color:var(--amber); background:rgba(245,166,35,.1); }
+.ft-col h4 { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--amber); margin-bottom:16px; font-weight:600; }
+.ft-col ul { list-style:none; display:flex; flex-direction:column; gap:10px; }
+.ft-col ul a { font-size:13px; font-weight:300; color:var(--muted); transition:color .3s; }
+.ft-col ul a:hover { color:#fff; }
+
+.ft-bot {
+  max-width:1200px; margin:0 auto;
+  padding-top:22px; border-top:1px solid rgba(255,255,255,.06);
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  flex-wrap:wrap;
+}
+.ft-bot p { font-size:10px; letter-spacing:.5px; color:var(--muted); }
+.ft-dis { font-size:9px; color:rgba(255,255,255,.2); }
+
+/* ════════════════════════════════════════════
+   WHATSAPP FLOAT
+════════════════════════════════════════════ */
+.wa {
+  position:fixed; bottom:max(24px, env(safe-area-inset-bottom,24px)); right:24px; z-index:800;
+  width:52px; height:52px; border-radius:50%;
+  background:var(--green); display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 20px rgba(37,211,102,.4);
+  transition:transform .3s, box-shadow .3s;
+  animation:wap 3s infinite;
+}
+.wa:hover { transform:scale(1.1); box-shadow:0 8px 30px rgba(37,211,102,.6); }
+.wa svg { width:27px; height:27px; fill:#fff; }
+@keyframes wap {
+  0%,100% { box-shadow:0 4px 20px rgba(37,211,102,.4); }
+  50%      { box-shadow:0 4px 32px rgba(37,211,102,.75); }
+}
+
+/* ════════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════════ */
+@keyframes fadeUp  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+
+.reveal { opacity:0; transform:translateY(36px); transition:opacity .75s ease, transform .75s ease; }
+.reveal.visible  { opacity:1; transform:translateY(0); }
+.d1 { transition-delay:.12s; }
+.d2 { transition-delay:.24s; }
+.d3 { transition-delay:.36s; }
+
+/* ════════════════════════════════════════════
+   MOBILE — ≤768px
+════════════════════════════════════════════ */
+@media (max-width:768px) {
+  /* Hide desktop nav elements */
+  .nav-links, .btn-buy { display:none; }
+
+  /* Show hamburger */
+  .hamburger { display:flex; }
+
+  /* Show drawer */
+  .nav-drawer { display:flex; }
+
+  /* Logo stays centered but smaller */
+  .nav-logo .wm { font-size:22px; letter-spacing:6px; }
+  .nav-logo .tg { font-size:6px; letter-spacing:4px; }
+
+  /* Hero adjustments */
+  #hero {
+    align-items:flex-end;
+    padding-bottom: 60px;
+  }
+  .hero-bg {
+    background-image:
+      linear-gradient(180deg, rgba(8,8,8,.55) 0%, rgba(8,8,8,.92) 65%, rgba(8,8,8,1) 100%),
+      url('https://images.unsplash.com/photo-1612528443702-f6741f70a049?w=1200&q=85');
+  }
+  .hero-in {
+    padding:0 var(--pad-x);
+    max-width:100%;
+    text-align:center;
+  }
+  .hero-eye { justify-content:center; }
+  .hero-p { max-width:100%; margin-left:auto; margin-right:auto; }
+  .hero-cta { justify-content:center; }
+  .scroll-hint { display:none; }
+
+  /* Hide desktop social rail */
+  .social-rail { display:none; }
+
+  /* About - single column */
+  .about-grid { grid-template-columns:1fr; gap:clamp(56px,8vw,72px); }
+  .about-img-wrap::before { display:none; }
+  .about-img { aspect-ratio:16/10; }
+  .about-badge { bottom:-20px; right:12px; width:80px; height:80px; }
+  .about-badge .num { font-size:24px; }
+
+  /* Product - single column, visual first */
+  .prod-grid { grid-template-columns:1fr; gap:40px; }
+  .prod-visual { order:-1; }
+  .bottle-scene { aspect-ratio:16/10; }
+  .ing-grid { grid-template-columns:1fr 1fr; }
+
+  /* Cocteles - 1 col on phone */
+  .coc-grid { grid-template-columns:1fr; }
+  .coc-card { aspect-ratio:16/9; }
+  .coc-head { flex-direction:column; align-items:flex-start; }
+
+  /* Footer single col */
+  .ft-inner { grid-template-columns:1fr; gap:32px; }
+  .ft-brand p { max-width:100%; }
+  .ft-bot { flex-direction:column; text-align:center; gap:8px; }
+
+  /* Sections padding */
+  #nosotros, #producto, #cocteles, #compra { padding:64px var(--pad-x); }
+
+  /* WA btn position — avoid overlap with nav */
+  .wa { bottom:max(20px, env(safe-area-inset-bottom, 20px)); right:16px; width:48px; height:48px; }
+  .wa svg { width:24px; height:24px; }
+}
+
+/* ── Tablets: 769–1024 ── */
+@media (min-width:769px) and (max-width:1024px) {
+  :root { --pad-x:40px; }
+  .nav-links { gap:24px; }
+  .coc-grid { grid-template-columns:1fr 1fr; }
+  .ft-inner { grid-template-columns:1fr 1fr; }
+}
+
+/* ── Very small phones ── */
+@media (max-width:380px) {
+  .hero-h1 { font-size:36px; }
+  .ing-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════ HEADER ════ -->
+<header id="hdr">
+  <ul class="nav-links">
+    <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#producto">Producto</a></li>
+    <li><a href="#cocteles">Cocteles</a></li>
+  </ul>
+
+  <div class="nav-logo">
+    <span class="wm">SINSONTE</span>
+    <span class="tg">Aperitivo de Ajíes</span>
+  </div>
+
+  <a href="#compra" class="btn-buy">Compra aquí</a>
+
+  <!-- Hamburger (mobile) -->
+  <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- ════ MOBILE DRAWER ════ -->
+<nav class="nav-drawer" id="drawer">
+  <ul>
+    <li><a href="#nosotros" class="drawer-link">Nosotros</a></li>
+    <li><a href="#producto" class="drawer-link">Producto</a></li>
+    <li><a href="#cocteles" class="drawer-link">Cocteles</a></li>
+  </ul>
+  <a href="#compra" class="drawer-buy drawer-link">Compra aquí</a>
+  <div class="drawer-soc">
+    <a href="https://facebook.com/sinsonte.pe" target="_blank" aria-label="Facebook">
+      <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+    </a>
+    <a href="https://instagram.com/sinsonte.pe" target="_blank" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+    </a>
+    <a href="#" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" style="fill:#080808"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ════ HERO ════ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-in">
+    <div class="hero-eye"><span>Aperitivo de Ajíes Peruanos</span></div>
+    <h1 class="hero-h1">El primer<br>aperitivo<br>de <em>ajíes</em><br>peruanos</h1>
+    <p class="hero-p">
+      Licor aperitivo que te hará viajar por una experiencia distinta,
+      cautivando tu paladar con una fusión de sabores de ajíes peruanos.
+    </p>
+    <a href="#nosotros" class="hero-cta">
+      <div class="cta-icon">
+        <svg viewBox="0 0 32 32"><path d="M22 4s-1 3-3 4-5 1-7 5c-2 4-1 8 3 10s9 0 11-5c2-4 0-8-2-10 1-1 2-2 2-3s-1-1-1-1zm-10 13a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+      </div>
+      <span class="cta-line"></span>
+      <span class="cta-lbl">Conócenos</span>
+    </a>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-bar"></div>
+  </div>
+</section>
+
+<!-- ════ SOCIAL RAIL (desktop) ════ -->
+<aside class="social-rail" aria-label="Redes sociales">
+  <a href="https://facebook.com/sinsonte.pe" target="_blank" class="sp" aria-label="Facebook">
+    <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+  </a>
+  <a href="https://instagram.com/sinsonte.pe" target="_blank" class="sp" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+      <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+    </svg>
+  </a>
+  <a href="#" class="sp" aria-label="YouTube">
+    <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" style="fill:#080808"/></svg>
+  </a>
+</aside>
+
+<!-- ════ NOSOTROS ════ -->
+<section id="nosotros">
+  <div class="about-grid">
+    <div class="about-img-wrap reveal">
+      <div class="about-img"></div>
+      <div class="about-badge">
+        <span class="num">7</span>
+        <span class="txt">Ajíes<br>Peruanos</span>
+      </div>
+    </div>
+    <div class="about-text">
+      <div class="s-label reveal">Nuestra historia</div>
+      <h2 class="s-h2 reveal d1">Un licor que<br>nació del fuego<br>peruano</h2>
+      <p class="reveal d2" style="margin-top:24px;">
+        Sinsonte nació de la pasión de dos bartenders peruanos, Lio Porras y Rodrigo Oblitas,
+        quienes crearon el primer aperitivo rojo de ajíes del Perú. Tras años en los mejores bares
+        del mundo, quisieron plasmar la esencia picante y vibrante de su tierra en una botella.
+      </p>
+      <p class="reveal d2">
+        Cada botella contiene la maceración, destilación e infusión de siete ajíes peruanos
+        seleccionados, junto a 16 botánicos que aportan profundidad y complejidad única.
+      </p>
+      <div class="aji-tags reveal d3">
+        <span class="aj">Ají Amarillo</span><span class="aj">Rocoto</span>
+        <span class="aj">Ají Limo</span><span class="aj">Ají Mochero</span>
+        <span class="aj">Ají Charapita</span><span class="aj">Pipí de Mono</span>
+        <span class="aj">Ají Dulce</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ PRODUCTO ════ -->
+<section id="producto">
+  <div class="prod-grid">
+    <div class="prod-text">
+      <div class="s-label reveal">El producto</div>
+      <h2 class="s-h2 reveal d1">Botella<br>Sinsonte<br><span style="color:var(--amber)">750 ml</span></h2>
+      <p class="reveal d2" style="margin-top:24px;">
+        Sumérgete en la profundidad y riqueza del Perú con cada sorbo. Este licor aperitivo,
+        elaborado con los más finos ajíes peruanos, promete un viaje inolvidable de sabores
+        intensos y auténticos.
+      </p>
+      <p class="reveal d2">
+        Su proceso combina maceración y destilación, extrayendo la esencia pura de cada ají
+        para generar un sutil picor con estimulante color rojo, exótico aroma y exquisito sabor.
+      </p>
+      <div class="ing-grid reveal d3">
+        <div class="ing">Ají Amarillo</div><div class="ing">Ají Mochero</div>
+        <div class="ing">Rocoto</div><div class="ing">Ají Limo</div>
+        <div class="ing">Ají Dulce</div><div class="ing">Ají Charapita</div>
+        <div class="ing">Pipí de Mono</div><div class="ing">+ 16 Botánicos</div>
+      </div>
+      <a href="#compra" class="btn-ol reveal d3">
+        Comprar ahora
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="prod-visual reveal d1">
+      <div class="bottle-wrap">
+        <div class="bottle-scene">
+          <div class="bottle-tag">
+            <div class="vol">750</div>
+            <div class="unit">ml</div>
+          </div>
+        </div>
+        <div class="prod-stats">
+          <div class="stat"><span class="val">29°</span><span class="lbl">Alcohol</span></div>
+          <div class="stat"><span class="val">7</span><span class="lbl">Ajíes</span></div>
+          <div class="stat"><span class="val">16</span><span class="lbl">Botánicos</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ COCTELES ════ -->
+<section id="cocteles">
+  <div class="coc-head">
+    <div class="left">
+      <div class="s-label reveal">Coctelería</div>
+      <h2 class="s-h2 reveal d1">Cocteles<br>con Sinsonte</h2>
+      <p class="reveal d2">Versátil e irresistible. Úsalo como base o complemento en tus tragos favoritos.</p>
+    </div>
+    <a href="#" class="btn-ol reveal">Ver todos</a>
+  </div>
+  <div class="coc-grid">
+    <div class="coc-card reveal">
+      <div class="coc-bg" style="background-image:linear-gradient(160deg,rgba(139,37,0,.3),rgba(8,8,8,.55)),url('https://images.unsplash.com/photo-1527281400683-1aae777175f8?w=700&q=80');"></div>
+      <div class="coc-ov">
+        <div class="coc-line"></div>
+        <div class="coc-name">Sinsonte Tonic</div>
+        <div class="coc-desc">Sinsonte · Tónica · Naranja · Polvo de ajíes</div>
+      </div>
+    </div>
+    <div class="coc-card reveal d1">
+      <div class="coc-bg" style="background-image:linear-gradient(160deg,rgba(80,30,0,.35),rgba(8,8,8,.6)),url('https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=700&q=80');"></div>
+      <div class="coc-ov">
+        <div class="coc-line"></div>
+        <div class="coc-name">Spicy Sour</div>
+        <div class="coc-desc">Sinsonte · Limón · Jarabe · Clara de huevo</div>
+      </div>
+    </div>
+    <div class="coc-card reveal d2">
+      <div class="coc-bg" style="background-image:linear-gradient(160deg,rgba(100,20,0,.35),rgba(8,8,8,.6)),url('https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=700&q=80');"></div>
+      <div class="coc-ov">
+        <div class="coc-line"></div>
+        <div class="coc-name">Fuego Spritz</div>
+        <div class="coc-desc">Sinsonte · Cava · Toronja · Ají flameado</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ COMPRA / CTA ════ -->
+<section id="compra">
+  <div class="in">
+    <div class="s-label reveal" style="justify-content:center;">Disponible ahora</div>
+    <h2 class="s-h2 reveal d1" style="margin-bottom:18px;">Lleva Sinsonte<br>a tu mesa</h2>
+    <p class="reveal d2">
+      Disponible en los mejores bares y tiendas especializadas del Perú.
+      Realiza tu pedido en línea y recíbelo donde estés.
+    </p>
+    <a href="#" class="btn-hero reveal d3">
+      <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Comprar ahora
+    </a>
+  </div>
+</section>
+
+<!-- ════ FOOTER ════ -->
+<footer>
+  <div class="ft-inner">
+    <div class="ft-brand">
+      <span class="wm">SINSONTE</span>
+      <span class="tg">Aperitivo de Ajíes Peruanos</span>
+      <p>El primer licor aperitivo rojo elaborado con ajíes peruanos. Una experiencia única para tu paladar.</p>
+      <div class="ft-soc">
+        <a href="https://facebook.com/sinsonte.pe" target="_blank" class="ft-s" aria-label="Facebook">
+          <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://instagram.com/sinsonte.pe" target="_blank" class="ft-s" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="#" class="ft-s" aria-label="YouTube">
+          <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" style="fill:#111"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Navegación</h4>
+      <ul>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#producto">Producto</a></li>
+        <li><a href="#cocteles">Cocteles</a></li>
+        <li><a href="#compra">Compra</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="https://wa.me/51000000000">WhatsApp</a></li>
+        <li><a href="https://instagram.com/sinsonte.pe">@sinsonte.pe</a></li>
+        <li><a href="https://facebook.com/sinsonte.pe">Facebook</a></li>
+        <li><a href="#">hola@sinsonte.pe</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bot">
+    <p>© 2025 Sinsonte. Todos los derechos reservados.</p>
+    <p class="ft-dis">Beber con responsabilidad. Prohibida la venta a menores de 18 años.</p>
+  </div>
+</footer>
+
+<!-- ════ WHATSAPP FLOAT ════ -->
+<a href="https://wa.me/51000000000" target="_blank" class="wa" aria-label="Contáctanos por WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+</a>
+
+<!-- ════ JS ════ -->
+<script>
+/* Nav scroll effect */
+const hdr = document.getElementById('hdr');
+window.addEventListener('scroll', () => hdr.classList.toggle('scrolled', scrollY > 50), {passive:true});
+
+/* Hamburger + drawer */
+const hamburger = document.getElementById('hamburger');
+const drawer    = document.getElementById('drawer');
+
+function toggleMenu(open) {
+  hamburger.classList.toggle('open', open);
+  drawer.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+hamburger.addEventListener('click', () => toggleMenu(!hamburger.classList.contains('open')));
+
+/* Close drawer on link click */
+document.querySelectorAll('.drawer-link').forEach(link => {
+  link.addEventListener('click', () => toggleMenu(false));
+});
+
+/* Close on ESC */
+document.addEventListener('keydown', e => { if(e.key === 'Escape') toggleMenu(false); });
+
+/* Scroll reveal */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
