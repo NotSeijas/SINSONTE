@@ -67,18 +67,21 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ── PARTÍCULAS FLOTANTES ──────────────── */
   const particlesEl = document.getElementById("particles");
   if (particlesEl) {
-    const emojis = ["🌶️", "🔥"];
-    for (let i = 0; i < 14; i++) {
-      const p = document.createElement("div");
-      p.className = "particle";
-      p.textContent = emojis[Math.random() > 0.5 ? 0 : 1];
-      p.style.cssText = `
+    for (let i = 0; i < 12; i++) {
+      const img = document.createElement("img");
+      img.className = "particle";
+      img.src = "pimientoaji.png";
+      img.alt = "";
+      img.setAttribute("aria-hidden", "true");
+      const size = 18 + Math.random() * 28;
+      img.style.cssText = `
         left: ${Math.random() * 100}%;
-        --dur: ${7 + Math.random() * 8}s;
-        --delay: ${Math.random() * 10}s;
-        font-size: ${10 + Math.random() * 14}px;
+        --size: ${size}px;
+        --dur: ${8 + Math.random() * 9}s;
+        --delay: ${Math.random() * 12}s;
+        transform: rotate(${Math.random() * 360}deg);
       `;
-      particlesEl.appendChild(p);
+      particlesEl.appendChild(img);
     }
   }
 

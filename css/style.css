@@ -1,3 +1,11 @@
+/* ════════════════════════════════════════
+   SINSONTE — Stylesheet
+   Estructura: Tokens → Reset → Layout →
+   Header → Hero → Secciones → Footer → 
+   Animaciones → Responsive
+════════════════════════════════════════ */
+
+/* ── Tokens ── */
 :root {
   --amber: #f5a623;
   --amber-dk: #c4830b;
@@ -385,8 +393,11 @@ header.scrolled {
 }
 .particle {
   position: absolute;
-  font-size: 16px;
   opacity: 0;
+  width: var(--size, 32px);
+  height: auto;
+  mix-blend-mode: screen;
+  filter: saturate(1.3) brightness(1.1);
   animation: floatParticle var(--dur, 8s) var(--delay, 0s) ease-in-out infinite;
 }
 
