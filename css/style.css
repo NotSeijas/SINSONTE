@@ -523,37 +523,18 @@ header.scrolled {
 /* Scroll hint */
 .scroll-hint {
   position: absolute;
-  bottom: 28px;
+  bottom: 24px;
   left: var(--pad-x);
   z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 10px;
   opacity: 0;
   animation: fadeIn 1s 1.8s ease forwards;
 }
-.scroll-hint span {
-  font-size: 8px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.scroll-bar {
-  width: 1px;
-  height: 40px;
-  background: var(--muted);
-  position: relative;
-  overflow: hidden;
-}
-.scroll-bar::after {
-  content: "";
-  position: absolute;
-  top: -100%;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: var(--amber);
-  animation: scrollDown 1.8s 2s ease-in-out infinite;
+.scroll-img {
+  width: 80px;
+  height: auto;
+  mix-blend-mode: screen;
+  animation: scrollBounce 2s 2s ease-in-out infinite;
+  filter: brightness(1.1) saturate(1.2);
 }
 
 /* Rail social (desktop) */
@@ -1241,12 +1222,13 @@ footer {
     transform: translateY(0);
   }
 }
-@keyframes scrollDown {
-  0% {
-    top: -100%;
-  }
+@keyframes scrollBounce {
+  0%,
   100% {
-    top: 200%;
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
   }
 }
 @keyframes floatParticle {
